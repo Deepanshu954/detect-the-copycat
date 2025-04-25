@@ -3,7 +3,15 @@ import React from 'react';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Info, AlertTriangle, AlertCircle } from 'lucide-react';
+import { Info, AlertTriangle, AlertCircle, FileText, Percent } from 'lucide-react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import TextPreview from './TextPreview';
 import { getSimilarityLevel } from '@/utils/plagiarismUtils';
 
@@ -20,66 +28,91 @@ const ComparisonResults: React.FC<ComparisonResultsProps> = ({
   similarityScore,
   matchingSegments,
 }) => {
-  // Convert similarity to percentage
   const similarityPercentage = Math.round(similarityScore * 100);
   const { level, description } = getSimilarityLevel(similarityScore);
   
-  // Choose alert icon based on similarity level
+  // Choose alert icon and color based on similarity level
   let AlertIcon = Info;
-  if (level === 'medium') AlertIcon = AlertTriangle;
-  if (level === 'high') AlertIcon = AlertCircle;
+  let progressColor = "bg-blue-500";
+  
+  if (level === 'medium') {
+    AlertIcon = AlertTriangle;
+    progressColor = "bg-yellow-500";
+  }
+  if (level === 'high') {
+    AlertIcon = AlertCircle;
+    progressColor = "bg-red-500";
+  }
   
   return (
     <div className="w-full max-w-6xl mx-auto space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle>Similarity Analysis</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Percent className="h-5 w-5" />
+            Plagiarism Analysis Results
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium">Similarity Score</span>
-                <span className="text-sm font-bold">{similarityPercentage}%</span>
+                <span className="text-lg font-bold">{similarityPercentage}%</span>
               </div>
-              <Progress value={similarityPercentage} className={`h-2 similarity-level-${level}`} />
+              <Progress 
+                value={similarityPercentage} 
+                className={`h-3 ${progressColor}`} 
+              />
             </div>
             
-            <Alert className={`bg-opacity-30 similarity-level-${level}`}>
+            <Alert className={`bg-opacity-30 ${
+              level === 'low' ? 'bg-blue-500 border-blue-500' :
+              level === 'medium' ? 'bg-yellow-500 border-yellow-500' :
+              'bg-red-500 border-red-500'
+            }`}>
               <AlertIcon className="h-4 w-4" />
               <AlertTitle>
-                {level === 'low' && 'Low similarity detected'}
-                {level === 'medium' && 'Moderate similarity detected'}
-                {level === 'high' && 'High similarity detected'}
+                {level === 'low' && 'Low Plagiarism Risk'}
+                {level === 'medium' && 'Moderate Plagiarism Risk'}
+                {level === 'high' && 'High Plagiarism Risk'}
               </AlertTitle>
-              <AlertDescription>
-                {description}
-              </AlertDescription>
+              <AlertDescription>{description}</AlertDescription>
             </Alert>
+
+            {matchingSegments.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Matching Content Analysis
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Match #</TableHead>
+                        <TableHead>Original Text</TableHead>
+                        <TableHead>Matching Text</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {matchingSegments.map((segment, index) => (
+                        <TableRow key={index}>
+                          <TableCell className="font-medium">{index + 1}</TableCell>
+                          <TableCell>{segment.original}</TableCell>
+                          <TableCell>{segment.comparison}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </CardContent>
       </Card>
-      
-      {matchingSegments.length > 0 && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Matching Content Samples</h3>
-          
-          <div className="grid lg:grid-cols-2 gap-4">
-            {matchingSegments.map((segment, index) => (
-              <div key={index} className="grid md:grid-cols-2 gap-4">
-                <TextPreview 
-                  title={`Original Text (Sample ${index + 1})`}
-                  text={segment.original} 
-                />
-                <TextPreview 
-                  title={`Comparison Text (Sample ${index + 1})`}
-                  text={segment.comparison} 
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
       
       <div className="grid md:grid-cols-2 gap-6">
         <TextPreview
