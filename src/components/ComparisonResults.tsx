@@ -31,53 +31,77 @@ const ComparisonResults: React.FC<ComparisonResultsProps> = ({
   const similarityPercentage = Math.round(similarityScore * 100);
   const { level, description } = getSimilarityLevel(similarityScore);
   
-  // Choose alert icon and color based on similarity level
-  let AlertIcon = Info;
-  let progressColor = "bg-blue-500";
-  
-  if (level === 'medium') {
-    AlertIcon = AlertTriangle;
-    progressColor = "bg-yellow-500";
-  }
-  if (level === 'high') {
-    AlertIcon = AlertCircle;
-    progressColor = "bg-red-500";
-  }
+  // Enhanced styling for different similarity levels
+  const getLevelStyles = () => {
+    switch (level) {
+      case 'low':
+        return {
+          alert: 'bg-green-50 border-green-200',
+          progress: 'bg-green-500',
+          icon: Info,
+          iconColor: 'text-green-500'
+        };
+      case 'medium':
+        return {
+          alert: 'bg-yellow-50 border-yellow-200',
+          progress: 'bg-yellow-500',
+          icon: AlertTriangle,
+          iconColor: 'text-yellow-500'
+        };
+      case 'high':
+        return {
+          alert: 'bg-red-50 border-red-200',
+          progress: 'bg-red-500',
+          icon: AlertCircle,
+          iconColor: 'text-red-500'
+        };
+    }
+  };
+
+  const styles = getLevelStyles();
+  const AlertIcon = styles.icon;
   
   return (
     <div className="w-full max-w-6xl mx-auto space-y-8">
-      <Card>
+      <Card className="animate-fade-in">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Percent className="h-5 w-5" />
+          <CardTitle className="flex items-center gap-2 text-xl">
+            <Percent className="h-6 w-6" />
             Plagiarism Analysis Results
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium">Similarity Score</span>
-                <span className="text-lg font-bold">{similarityPercentage}%</span>
+            <div className="bg-slate-50 p-6 rounded-lg">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-lg font-medium">Similarity Score</span>
+                <span className="text-2xl font-bold tabular-nums">
+                  {similarityPercentage}%
+                </span>
               </div>
               <Progress 
                 value={similarityPercentage} 
-                className={`h-3 ${progressColor}`} 
+                className={`h-4 ${styles.progress}`}
               />
+              <div className="mt-2 text-sm text-gray-600">
+                {similarityPercentage === 100 ? (
+                  "Exact match detected"
+                ) : similarityPercentage === 0 ? (
+                  "No matching content found"
+                ) : (
+                  `${similarityPercentage}% of content shows similarity`
+                )}
+              </div>
             </div>
             
-            <Alert className={`bg-opacity-30 ${
-              level === 'low' ? 'bg-blue-500 border-blue-500' :
-              level === 'medium' ? 'bg-yellow-500 border-yellow-500' :
-              'bg-red-500 border-red-500'
-            }`}>
-              <AlertIcon className="h-4 w-4" />
+            <Alert className={styles.alert}>
+              <AlertIcon className={`h-5 w-5 ${styles.iconColor}`} />
               <AlertTitle>
-                {level === 'low' && 'Low Plagiarism Risk'}
-                {level === 'medium' && 'Moderate Plagiarism Risk'}
-                {level === 'high' && 'High Plagiarism Risk'}
+                {level === 'low' && 'Low Similarity Detected'}
+                {level === 'medium' && 'Moderate Similarity Detected'}
+                {level === 'high' && 'High Similarity Detected'}
               </AlertTitle>
-              <AlertDescription>{description}</AlertDescription>
+              <AlertDescription className="mt-2">{description}</AlertDescription>
             </Alert>
 
             {matchingSegments.length > 0 && (
@@ -92,7 +116,7 @@ const ComparisonResults: React.FC<ComparisonResultsProps> = ({
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Match #</TableHead>
+                        <TableHead className="w-[100px]">Match #</TableHead>
                         <TableHead>Original Text</TableHead>
                         <TableHead>Matching Text</TableHead>
                       </TableRow>
@@ -101,8 +125,12 @@ const ComparisonResults: React.FC<ComparisonResultsProps> = ({
                       {matchingSegments.map((segment, index) => (
                         <TableRow key={index}>
                           <TableCell className="font-medium">{index + 1}</TableCell>
-                          <TableCell>{segment.original}</TableCell>
-                          <TableCell>{segment.comparison}</TableCell>
+                          <TableCell className="font-mono text-sm bg-slate-50">
+                            {segment.original}
+                          </TableCell>
+                          <TableCell className="font-mono text-sm bg-slate-50">
+                            {segment.comparison}
+                          </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
@@ -118,12 +146,12 @@ const ComparisonResults: React.FC<ComparisonResultsProps> = ({
         <TextPreview
           title="Original Text"
           text={originalText}
-          className="max-h-[400px] overflow-hidden"
+          className="animate-fade-in"
         />
         <TextPreview
           title="Comparison Text"
           text={comparisonText} 
-          className="max-h-[400px] overflow-hidden"
+          className="animate-fade-in"
         />
       </div>
     </div>

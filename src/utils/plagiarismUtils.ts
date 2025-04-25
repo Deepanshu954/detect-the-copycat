@@ -1,4 +1,3 @@
-
 import { preprocessText } from './textProcessing';
 
 /**
@@ -10,7 +9,7 @@ export function calculateJaccardSimilarity(set1: Set<string>, set2: Set<string>)
   const intersection = new Set([...set1].filter(x => set2.has(x)));
   const union = new Set([...set1, ...set2]);
   
-  return intersection.size / union.size;
+  return Math.min(1, intersection.size / union.size);
 }
 
 /**
@@ -85,26 +84,28 @@ function findContext(text: string, search: string, contextLength: number = 100):
 }
 
 /**
- * Get similarity level description
+ * Get similarity level description with more detailed percentage ranges
  */
 export function getSimilarityLevel(score: number): {
   level: 'low' | 'medium' | 'high',
   description: string
 } {
-  if (score < 0.3) {
+  const percentage = score * 100;
+  
+  if (percentage < 30) {
     return {
       level: 'low',
-      description: 'Low similarity detected. The documents appear to be mostly different.'
+      description: `${percentage.toFixed(1)}% similarity detected. The documents appear to be mostly different, with minimal matching content.`
     };
-  } else if (score < 0.6) {
+  } else if (percentage < 70) {
     return {
       level: 'medium',
-      description: 'Moderate similarity detected. The documents share some common phrases and content.'
+      description: `${percentage.toFixed(1)}% similarity detected. The documents share notable common phrases and content that may indicate paraphrasing.`
     };
   } else {
     return {
       level: 'high',
-      description: 'High similarity detected. The documents contain significant matching content that may indicate plagiarism.'
+      description: `${percentage.toFixed(1)}% similarity detected. High level of matching content indicates potential plagiarism. Review carefully.`
     };
   }
 }
