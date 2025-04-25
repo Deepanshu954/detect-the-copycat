@@ -1,73 +1,92 @@
-# Welcome to your Lovable project
 
-## Project info
+# Plagiarism Detection System
 
-**URL**: https://lovable.dev/projects/fc947efc-8153-42a2-976e-f823a4e28062
+A comprehensive system for detecting plagiarism between text documents with precise similarity analysis and visualization.
 
-## How can I edit this code?
+## Project Structure
 
-There are several ways of editing your application.
+The project is divided into two main parts:
 
-**Use Lovable**
+### Frontend (React/TypeScript/Vite)
+- Modern UI for document upload and comparison
+- Real-time similarity visualization with detailed metrics
+- Highlighting of matching text segments
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/fc947efc-8153-42a2-976e-f823a4e28062) and start prompting.
+### Backend (C++)
+- High-performance text processing engine
+- Implementation of advanced similarity algorithms
+- RESTful API for text comparison services
 
-Changes made via Lovable will be committed automatically to this repo.
+## Technical Approach
 
-**Use your preferred IDE**
+### Text Processing
+1. **Tokenization**: Converting text into individual tokens (words)
+2. **Stopword Removal**: Filtering common words like "the", "and", etc.
+3. **N-gram Generation**: Creating sequences of n consecutive words
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Similarity Detection
+1. **Jaccard Similarity**: Measuring the intersection over union of n-grams
+2. **Text Segment Matching**: Identifying specific matching passages
+3. **Context Analysis**: Providing surrounding context for matched segments
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Performance Optimization
+- Efficient data structures for text representation
+- Optimized C++ algorithms for large document processing
+- Strategic caching of intermediate results
 
-Follow these steps:
+## Getting Started
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Prerequisites
+- Node.js 14+ and npm
+- C++17 compatible compiler
+- CMake 3.10+
+- libcurl development libraries
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Running the Application
 
-# Step 3: Install the necessary dependencies.
-npm i
+The easiest way to run the application is using the provided launch script:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+chmod +x launch.sh
+./launch.sh
+```
+
+This script will:
+1. Build and start the C++ backend server
+2. Install dependencies and start the React frontend
+3. Provide URLs to access each component
+
+### Manual Setup
+
+#### Backend
+```bash
+cd backend
+mkdir build && cd build
+cmake ..
+make
+./plagiarism_server
+```
+
+#### Frontend
+```bash
+cd frontend
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Usage
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+1. Navigate to the frontend URL (default: http://localhost:5173)
+2. Upload or paste text documents for comparison
+3. Click "Compare Texts" to analyze
+4. View the similarity score and matching segments
+5. Explore detailed analysis of potential plagiarism
 
-**Use GitHub Codespaces**
+## API Endpoints
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+- `POST /api/compare`: Compare two text documents
+  - Request body: `{ "originalText": "...", "comparisonText": "..." }`
+  - Response: `{ "similarityScore": 0.75, "matchingSegments": [...] }`
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/fc947efc-8153-42a2-976e-f823a4e28062) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+- `GET /api/health`: Check if the service is running
+  - Response: `{ "status": "ok", "message": "..." }`
