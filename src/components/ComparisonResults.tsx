@@ -31,6 +31,8 @@ const ComparisonResults: React.FC<ComparisonResultsProps> = ({
   const similarityPercentage = Math.round(similarityScore * 100);
   const { level, description } = getSimilarityLevel(similarityScore);
   
+  const highlightedSegments = matchingSegments.map(segment => segment.comparison);
+  
   // Enhanced styling for different similarity levels
   const getLevelStyles = () => {
     switch (level) {
@@ -150,7 +152,8 @@ const ComparisonResults: React.FC<ComparisonResultsProps> = ({
         />
         <TextPreview
           title="Comparison Text"
-          text={comparisonText} 
+          text={comparisonText}
+          highlightedSegments={highlightedSegments}
           className="animate-fade-in"
         />
       </div>
